@@ -1,4 +1,4 @@
-/* 주제32 「현재 노예제는 사라졌을까?」 3단 글쓰기 웹앱 — 로직(app.js) */
+/* 주제32 「현재 노예제는 사라졌을까?」 2단 글쓰기 웹앱 — 로직(app.js) */
 const CONFIG = {
   SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbyXSjCfWY_HiZFqW_OBR-FQDoIfF1z_STqyKWUI31MacHeY3u7hbirFSFDvW-5yuUHaJQ/exec",
   /* 포털 커리큘럼 관리에 이 id 하나로 활동을 등록한다 */
@@ -8,13 +8,13 @@ const CONFIG = {
 
 const S = {
   sid: "", name: "", grade: 0, ban: 0, preview: false,
-  crit: "", ev: "", judge: "", card: "", final: "",
+  crit: "", ev: "", judge: "", card: "",
   tab: "A", copied: false, sending: false, submitted: false, padletUrl: ""
 };
 
 /* 화면 목록: stage는 위쪽 4단계 막대 */
-const SCREENS = { s0: "", s1: "criteria", s2: "read", s3: "counter", s4: "wrap" };
-const STAGES = ["criteria", "read", "counter", "wrap"];
+const SCREENS = { s0: "", s1: "criteria", s2: "read", s4: "wrap" };
+const STAGES = ["criteria", "read", "wrap"];
 
 const $ = id => document.getElementById(id);
 const byId = (arr, id) => arr.find(x => x.id === id);
@@ -59,14 +59,13 @@ function loadPicks() {
     if (byId(EVIDENCES, v.ev)) S.ev = v.ev;
     if (byId(JUDGES, v.judge)) S.judge = v.judge;
     if (v.card === "A" || v.card === "B") S.card = v.card;
-    if (byId(FINALS, v.final)) S.final = v.final;
   } catch (e) { /* 저장소가 막히면 메모리만 */ }
 }
 
 function savePicks() {
   if (S.preview) return;
   try {
-    localStorage.setItem(storeKey(), JSON.stringify({ crit: S.crit, ev: S.ev, judge: S.judge, card: S.card, final: S.final, ts: Date.now() }));
+    localStorage.setItem(storeKey(), JSON.stringify({ crit: S.crit, ev: S.ev, judge: S.judge, card: S.card, ts: Date.now() }));
   } catch (e) { /* 저장소가 막히면 메모리만 */ }
 }
 
@@ -159,11 +158,10 @@ function recapRow(label, main, sub) {
   return row;
 }
 
-function renderRecap(box, withStep2) {
+function renderRecap(box) {
   box.innerHTML = "";
   const c = byId(CRITERIA, S.crit);
   box.appendChild(recapRow("내 기준", "내 기준은 " + c.mark + " " + c.text + " (근거: " + byId(EVIDENCES, S.ev).text + ")", "이유: " + val("r1")));
-  if (withStep2) box.appendChild(recapRow("내 판단", judgeLine(), "근거: " + val("r2")));
 }
 
 /* ── 자료 카드 ── */
@@ -214,19 +212,11 @@ function syncTabs() {
   });
 }
 
-/* 반론 화면에서 카드를 다시 볼 수 있게 접어 둔다 */
-function renderCardsAgain() {
-  const d = $("s3Cards");
-  d.innerHTML = "";
-  d.appendChild(el("summary", "", "📄 자료 카드 다시 보기"));
-  CARDS.forEach(c => d.appendChild(cardEl(c, "S3")));
-}
-
 /* ── 글자 수 ── */
 function bindCount(taId, cntId) {
   const ta = $(taId), cnt = $(cntId);
   const upd = () => { cnt.textContent = ta.value.trim().length + "자"; };
-  ta.addEventListener("input", () => { upd(); ["s1Err", "s2Err", "s3Err", "s4Err"].forEach(i => { $(i).textContent = ""; }); });
+  ta.addEventListener("input", () => { upd(); ["s1Err", "s2Err", "s4Err"].forEach(i => { $(i).textContent = ""; }); });
   upd();
 }
 
@@ -257,42 +247,28 @@ function goStep2() {
   if (!S.crit) { $("s1Err").textContent = "내 기준을 하나 골라 줘."; return; }
   if (!S.ev) { $("s1Err").textContent = "근거를 하나 골라 줘."; return; }
   if (val("r1").length < CONFIG.MIN_CHARS) { $("s1Err").textContent = "이유를 한 줄 써 줘."; return; }
-  renderRecap($("recap2"), false);
+  renderRecap($("recap2"));
   radioGroup($("judgeList"), JUDGES, () => S.judge, v => { S.judge = v; $("s2Err").textContent = ""; }, "s2JudgeQ");
   radioGroup($("cardPick"), CARDS.map(c => ({ id: c.id, text: "카드 " + c.id })), () => S.card, v => { S.card = v; $("s2Err").textContent = ""; }, "s2CardQ");
   show("s2");
 }
 
-/* ── 2단 ── */
-function goStep3() {
+/* ── 2단 → 마무리 ── */
+function goWrap() {
   if (!S.judge) { $("s2Err").textContent = "판단을 하나 골라 줘."; return; }
   if (!S.card) { $("s2Err").textContent = "판단에 쓴 카드를 골라 줘."; return; }
   if (val("r2").length < CONFIG.MIN_CHARS) { $("s2Err").textContent = "근거를 한 문장 써 줘."; return; }
-  renderRecap($("recap3"), true);
-  radioGroup($("finalList"), FINALS, () => S.final, v => { S.final = v; $("s3Err").textContent = ""; }, "s3FinalQ");
-  show("s3");
-}
-
-/* ── 3단 → 마무리 ── */
-function goWrap() {
-  if (val("counter").length < CONFIG.MIN_CHARS) { $("s3Err").textContent = "반대로 읽을 수 있는 내용을 써 줘."; return; }
-  if (!S.final) { $("s3Err").textContent = "그래도 내 판단이 어떤지 골라 줘."; return; }
-  if (val("r3").length < CONFIG.MIN_CHARS) { $("s3Err").textContent = "이유를 한 문장 써 줘."; return; }
   renderSummary();
   show("s4");
 }
 
 /* 복사 글: 학번·이름 한 줄과 [꼬리표]만 붙이고 나머지는 학생이 쓴 글 */
-function finalText() { return byId(FINALS, S.final).text; }
-
 function bodyText() {
   return [
     "[기준] " + critShort(),
     "이유: " + val("r1"),
     "[판단] " + judgeLine(),
-    "근거: " + val("r2"),
-    "[반론] " + val("counter"),
-    "[내 판단] " + finalText() + ": " + val("r3")
+    "근거: " + val("r2")
   ].join("\n");
 }
 
@@ -300,7 +276,7 @@ function buildOutText() { return S.sid + " " + S.name + "\n" + bodyText(); }
 
 /* 양식을 뺀 학생 글자 수 */
 function studentChars() {
-  return ["r1", "r2", "counter", "r3"].reduce((n, id) => n + val(id).length, 0);
+  return ["r1", "r2"].reduce((n, id) => n + val(id).length, 0);
 }
 
 function renderSummary() {
@@ -329,14 +305,13 @@ async function submitAll() {
   S.sending = true; $("submitBtn").disabled = true; $("submitBtn").textContent = "보내는 중…";
   const payload = {
     studentId: S.sid, studentName: S.name, gameName: CONFIG.GAME_NAME,
-    choiceSummary: byId(CRITERIA, S.crit).mark + " / " + byId(JUDGES, S.judge).text + " (카드 " + S.card + ") / " + finalText(),
+    choiceSummary: byId(CRITERIA, S.crit).mark + " / " + byId(JUDGES, S.judge).text + " (카드 " + S.card + ")",
     diffSummary: "",
-    reflection: bodyText(), // 시트 G열: 3단 답 합본
+    reflection: bodyText(), // 시트 G열: 답 합본
     choicesJson: JSON.stringify({
       sid: S.sid, name: S.name, ban: S.ban,
       criterion: S.crit, evidence: S.ev, reason1: val("r1"),
       judge: S.judge, card: S.card, reason2: val("r2"),
-      counter: val("counter"), final: S.final, reason3: val("r3"),
       ts: new Date().toISOString()
     })
   };
@@ -351,7 +326,7 @@ async function submitAll() {
   S.sending = false; S.submitted = true;
   if (window.DraftGuard) DraftGuard.clear(); // 저장 성공 → 임시저장 삭제
   clearPicks();
-  ["r1", "r2", "counter", "r3"].forEach(id => { $(id).readOnly = true; }); // 제출 뒤 수정 잠금
+  ["r1", "r2"].forEach(id => { $(id).readOnly = true; }); // 제출 뒤 수정 잠금
   $("submitBtn").textContent = "제출 완료";
   $("outMsg").textContent = S.preview ? "미리보기라 저장하지 않았어." : (S.copied ? "제출했어! 복사한 글을 패들렛에 올려 줘." : "제출했어! 이제 글을 복사해서 패들렛에 올려 줘.");
 }
@@ -431,30 +406,20 @@ function init() {
   $("r2").placeholder = STEP2.reasonPh;
   $("s2Hint").textContent = STEP2.hint;
 
-  $("s3CounterQ").textContent = STEP3.counterQ;
-  $("counter").placeholder = STEP3.counterPh;
-  $("s3FinalQ").textContent = STEP3.finalQ;
-  $("s3ReasonQ").textContent = STEP3.reasonQ;
-  $("r3").placeholder = STEP3.reasonPh;
-  $("s3Hint").textContent = STEP3.hint;
-
   $("wrapGuide").textContent = WRAP.guide;
   $("copyBtn").textContent = WRAP.copyBtn;
   $("padletBtn").textContent = WRAP.padletBtn;
   $("exampleBtn").textContent = WRAP.exampleBtn;
 
   renderCardTabs();
-  renderCardsAgain();
   renderExamples();
-  [["r1", "r1c"], ["r2", "r2c"], ["counter", "counterc"], ["r3", "r3c"]].forEach(p => bindCount(p[0], p[1]));
+  [["r1", "r1c"], ["r2", "r2c"]].forEach(p => bindCount(p[0], p[1]));
 
   $("startBtn").addEventListener("click", startApp);
   $("s1Next").addEventListener("click", goStep2);
   $("s2Back").addEventListener("click", () => { renderStep1(); show("s1"); });
-  $("s2Next").addEventListener("click", goStep3);
-  $("s3Back").addEventListener("click", () => show("s2"));
-  $("s3Next").addEventListener("click", goWrap);
-  $("s4Back").addEventListener("click", () => show("s3"));
+  $("s2Next").addEventListener("click", goWrap);
+  $("s4Back").addEventListener("click", () => show("s2"));
   $("copyBtn").addEventListener("click", copyOut);
   $("submitBtn").addEventListener("click", submitAll);
   $("exampleBtn").addEventListener("click", toggleExamples);

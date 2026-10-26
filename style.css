@@ -95,8 +95,6 @@ input:focus,textarea:focus,button:focus-visible,summary:focus-visible,.opt:focus
 .tab[aria-selected="true"]{background:var(--iron);color:#fff;border-color:var(--iron);font-weight:700}
 .src-card{padding:16px;border:1px solid var(--line);border-top:0;background:#fff}
 .panel .src-card{border-radius:0 0 4px 4px}
-.cards-again .src-card{margin:0 0 12px;border-top:1px solid var(--line);border-radius:4px}
-.cards-again{padding-bottom:2px}
 .src-title{margin:8px 0 10px;font-size:1.12rem}
 .src-card p{margin:0 0 10px}
 .badge{display:inline-block;padding:1px 12px;border-radius:999px;background:var(--rust-wash);color:var(--rust);border:1px solid #d9b4aa;font:700 16px var(--sans)}

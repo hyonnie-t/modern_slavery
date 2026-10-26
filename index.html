@@ -20,7 +20,6 @@
     <ol id="steps" class="steps" aria-label="진행 단계" hidden>
       <li data-k="criteria">기준 정하기</li>
       <li data-k="read">자료 읽기</li>
-      <li data-k="counter">반론 쓰기</li>
       <li data-k="wrap">마무리</li>
     </ol>
   </header>
@@ -51,7 +50,7 @@
   <!-- S1 기준 정하기 -->
   <section id="s1" class="screen" hidden>
     <div class="card">
-      <div class="progress">1/3</div>
+      <div class="progress">1/2</div>
       <h2 id="s1Q"></h2>
       <div id="critList" class="opt-list"></div>
       <h3 id="s1EvQ"></h3>
@@ -71,7 +70,7 @@
   <section id="s2" class="screen" hidden>
     <div id="recap2" class="recap"></div>
     <div class="card">
-      <div class="progress">2/3</div>
+      <div class="progress">2/2</div>
       <p id="s2Q" class="lead"></p>
       <div id="tabs" class="tabs" role="tablist" aria-label="자료 카드"></div>
       <div id="cardPanels"></div>
@@ -91,29 +90,6 @@
       <button id="s2Next" class="btn">다음</button>
     </div>
     <p id="s2Err" class="err" role="alert"></p>
-  </section>
-
-  <!-- S3 반론 -->
-  <section id="s3" class="screen" hidden>
-    <div id="recap3" class="recap"></div>
-    <details id="s3Cards" class="hint cards-again"></details>
-    <div class="card">
-      <div class="progress">3/3</div>
-      <label for="counter" id="s3CounterQ" class="q first"></label>
-      <details class="hint"><summary>💡 막막하면 힌트 보기</summary><p id="s3Hint"></p></details>
-      <textarea id="counter" rows="3"></textarea>
-      <div class="count" id="counterc"></div>
-      <h3 id="s3FinalQ"></h3>
-      <div id="finalList" class="opt-list opt-row"></div>
-      <label for="r3" id="s3ReasonQ" class="q"></label>
-      <textarea id="r3" rows="2"></textarea>
-      <div class="count" id="r3c"></div>
-    </div>
-    <div class="btn-row nav">
-      <button id="s3Back" class="btn btn-ghost">이전</button>
-      <button id="s3Next" class="btn">다음</button>
-    </div>
-    <p id="s3Err" class="err" role="alert"></p>
   </section>
 
   <!-- S4 마무리 -->
