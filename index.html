@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<!-- 포털 로그인 세션 자동 첨부(history26 v83) -->
+<script src="https://hyonnie-t.github.io/history26/snippets/portal_auth.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지금도 노예제가 있을까?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="previewBar" class="preview-bar" hidden>미리보기 모드 — 저장되지 않아</div>
+<main class="page">
+  <header class="book-head">
+    <div class="eyebrow">세계사 주제32</div>
+    <h1 id="appTitle"></h1>
+    <ol id="steps" class="steps" aria-label="진행 단계" hidden>
+      <li data-k="criteria">기준 정하기</li>
+      <li data-k="read">자료 읽기</li>
+      <li data-k="counter">반론 쓰기</li>
+      <li data-k="wrap">마무리</li>
+    </ol>
+  </header>
+
+  <!-- S0 도입 -->
+  <section id="s0" class="screen">
+    <div class="card">
+      <p id="introQ" class="lead"></p>
+      <blockquote class="textbook">
+        <div id="tbLabel" class="box-label"></div>
+        <p id="tbText"></p>
+      </blockquote>
+      <div class="datebox">
+        <div class="box-label">오늘 수업에서 본 날짜</div>
+        <ul id="dateList" class="date-list"></ul>
+      </div>
+    </div>
+    <div class="card">
+      <label for="sid">학번 (5자리, 예: 20512)</label>
+      <input id="sid" inputmode="numeric" maxlength="5" autocomplete="off">
+      <label for="sname">이름</label>
+      <input id="sname" autocomplete="off">
+      <p id="startErr" class="err" role="alert"></p>
+      <button id="startBtn" class="btn wide">시작</button>
+    </div>
+  </section>
+
+  <!-- S1 기준 정하기 -->
+  <section id="s1" class="screen" hidden>
+    <div class="card">
+      <div class="progress">1/3</div>
+      <h2 id="s1Q"></h2>
+      <div id="critList" class="opt-list"></div>
+      <h3 id="s1EvQ"></h3>
+      <div id="evList" class="opt-list opt-row"></div>
+      <label for="r1" id="s1ReasonQ" class="q"></label>
+      <details class="hint"><summary>💡 막막하면 힌트 보기</summary><p id="s1Hint"></p></details>
+      <textarea id="r1" rows="2"></textarea>
+      <div class="count" id="r1c"></div>
+    </div>
+    <div class="btn-row nav">
+      <button id="s1Back" class="btn btn-ghost">이전</button>
+      <button id="s1Next" class="btn">다음</button>
+    </div>
+    <p id="s1Err" class="err" role="alert"></p>
+  </section>
+
+  <!-- S2 자료 읽고 판단 -->
+  <section id="s2" class="screen" hidden>
+    <div id="recap2" class="recap"></div>
+    <div class="card">
+      <div class="progress">2/3</div>
+      <p id="s2Q" class="lead"></p>
+      <div id="tabs" class="tabs" role="tablist" aria-label="자료 카드"></div>
+      <div id="cardPanels"></div>
+    </div>
+    <div class="card">
+      <h3 id="s2JudgeQ" class="first"></h3>
+      <div id="judgeList" class="opt-list"></div>
+      <h3 id="s2CardQ"></h3>
+      <div id="cardPick" class="opt-list opt-row"></div>
+      <label for="r2" id="s2ReasonQ" class="q"></label>
+      <details class="hint"><summary>💡 막막하면 힌트 보기</summary><p id="s2Hint"></p></details>
+      <textarea id="r2" rows="3"></textarea>
+      <div class="count" id="r2c"></div>
+    </div>
+    <div class="btn-row nav">
+      <button id="s2Back" class="btn btn-ghost">이전</button>
+      <button id="s2Next" class="btn">다음</button>
+    </div>
+    <p id="s2Err" class="err" role="alert"></p>
+  </section>
+
+  <!-- S3 반론 -->
+  <section id="s3" class="screen" hidden>
+    <div id="recap3" class="recap"></div>
+    <details id="s3Cards" class="hint cards-again"></details>
+    <div class="card">
+      <div class="progress">3/3</div>
+      <label for="counter" id="s3CounterQ" class="q first"></label>
+      <details class="hint"><summary>💡 막막하면 힌트 보기</summary><p id="s3Hint"></p></details>
+      <textarea id="counter" rows="3"></textarea>
+      <div class="count" id="counterc"></div>
+      <h3 id="s3FinalQ"></h3>
+      <div id="finalList" class="opt-list opt-row"></div>
+      <label for="r3" id="s3ReasonQ" class="q"></label>
+      <textarea id="r3" rows="2"></textarea>
+      <div class="count" id="r3c"></div>
+    </div>
+    <div class="btn-row nav">
+      <button id="s3Back" class="btn btn-ghost">이전</button>
+      <button id="s3Next" class="btn">다음</button>
+    </div>
+    <p id="s3Err" class="err" role="alert"></p>
+  </section>
+
+  <!-- S4 마무리 -->
+  <section id="s4" class="screen" hidden>
+    <div class="card">
+      <p id="wrapGuide" class="lead"></p>
+      <div id="summary" class="summary"></div>
+      <p id="bodyCount" class="note"></p>
+      <p id="s4Err" class="err" role="alert"></p>
+      <div class="btn-row">
+        <button id="copyBtn" class="btn"></button>
+        <button id="submitBtn" class="btn btn-ghost">제출</button>
+      </div>
+      <p id="outMsg" class="note" role="status"></p>
+      <div class="padlet-box">
+        <p class="padlet-guide">제출하고 나서 글을 복사해서, 우리 반 패들렛에 붙여넣어 올려 줘.</p>
+        <a id="padletBtn" class="btn btn-ghost wide" target="_blank" rel="noopener" hidden></a>
+        <p id="padletMsg" class="note"></p>
+      </div>
+      <button id="exampleBtn" class="btn btn-ghost wide" disabled aria-expanded="false"></button>
+      <p id="exampleLock" class="note">글을 복사하면 예시 글을 볼 수 있어.</p>
+      <div id="examples" class="examples" hidden></div>
+    </div>
+    <div class="btn-row nav">
+      <button id="s4Back" class="btn btn-ghost">이전</button>
+    </div>
+  </section>
+</main>
+<script src="focus_guard.js"></script>
+<script src="glossary.js"></script>
+<script src="draft_guard.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
