@@ -126,6 +126,7 @@ function radioGroup(box, options, getVal, setVal, label) {
     const p = el("span", "opt-text");
     if (o.mark) p.appendChild(el("b", "opt-mark", o.mark + " "));
     p.appendChild(document.createTextNode(o.text));
+    if (o.quote) p.appendChild(el("span", "opt-quote", "“" + o.quote + "”"));
     row.appendChild(p);
     const pick = e => {
       if (S.submitted) return; // 제출 뒤에는 고르기를 잠근다(시트에 간 글과 복사 글이 어긋나지 않게)
@@ -386,12 +387,6 @@ function init() {
   $("introQ").textContent = INTRO.question;
   $("tbLabel").textContent = INTRO.textbook.label;
   $("tbText").textContent = INTRO.textbook.text;
-  INTRO.dates.forEach(x => {
-    const li = el("li");
-    li.appendChild(el("b", "", x.d));
-    li.appendChild(document.createTextNode(" — " + x.t));
-    $("dateList").appendChild(li);
-  });
 
   $("s1Q").textContent = STEP1.q;
   $("s1EvQ").textContent = STEP1.evQ;
