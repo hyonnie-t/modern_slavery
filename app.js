@@ -77,8 +77,15 @@ function clearPicks() {
 /* ── 시트 전송 ── */
 async function postToSheet(payload) {
   if (S.preview) return { result: "success", preview: true };
-  const res = await fetch(CONFIG.SHEET_WEBAPP_URL, { method: "POST", body: JSON.stringify(payload) });
-  const json = await res.json();
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 30000); // 응답이 안 오면 30초 뒤 실패로 돌려 다시 누르게 한다
+  let json;
+  try {
+    const res = await fetch(CONFIG.SHEET_WEBAPP_URL, { method: "POST", body: JSON.stringify(payload), signal: ctl.signal });
+    json = await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
   if (json.result !== "success") {
     const err = new Error(json.message || "저장 실패");
     err.locked = !!json.locked;
@@ -122,7 +129,7 @@ function radioGroup(box, options, getVal, setVal, label) {
     p.appendChild(document.createTextNode(o.text));
     row.appendChild(p);
     const pick = e => {
-      if (e.target.closest && e.target.closest(".term")) return; // 낱말 풀이를 누른 건 선택으로 치지 않는다
+      if (S.submitted) return; // 제출 뒤에는 고르기를 잠근다(시트에 간 글과 복사 글이 어긋나지 않게)
       setVal(o.id); savePicks();
       box.querySelectorAll(".opt").forEach(r => r.setAttribute("aria-checked", r === row ? "true" : "false"));
     };
@@ -344,6 +351,7 @@ async function submitAll() {
   S.sending = false; S.submitted = true;
   if (window.DraftGuard) DraftGuard.clear(); // 저장 성공 → 임시저장 삭제
   clearPicks();
+  ["r1", "r2", "counter", "r3"].forEach(id => { $(id).readOnly = true; }); // 제출 뒤 수정 잠금
   $("submitBtn").textContent = "제출 완료";
   $("outMsg").textContent = S.preview ? "미리보기라 저장하지 않았어." : (S.copied ? "제출했어! 복사한 글을 패들렛에 올려 줘." : "제출했어! 이제 글을 복사해서 패들렛에 올려 줘.");
 }
@@ -441,7 +449,6 @@ function init() {
   [["r1", "r1c"], ["r2", "r2c"], ["counter", "counterc"], ["r3", "r3c"]].forEach(p => bindCount(p[0], p[1]));
 
   $("startBtn").addEventListener("click", startApp);
-  $("s1Back").addEventListener("click", () => show("s0"));
   $("s1Next").addEventListener("click", goStep2);
   $("s2Back").addEventListener("click", () => { renderStep1(); show("s1"); });
   $("s2Next").addEventListener("click", goStep3);
@@ -451,7 +458,7 @@ function init() {
   $("copyBtn").addEventListener("click", copyOut);
   $("submitBtn").addEventListener("click", submitAll);
   $("exampleBtn").addEventListener("click", toggleExamples);
-  Glossary.start({ terms: GLOSSARY, skip: ["#steps", ".tab"] }); // 어려운 낱말 풀이 (glossary.js)
+  Glossary.start({ terms: GLOSSARY, skip: ["#steps", ".tab", ".opt"] }); // 어려운 낱말 풀이 (glossary.js)
 }
 
 init();
